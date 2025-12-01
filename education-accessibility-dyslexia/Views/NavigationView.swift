@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NavigationView: View {
+struct Navigation2View: View {
     @State private var selection: Tab = .textToSpeech
     enum Tab{
         case textToSpeech
@@ -31,5 +31,5 @@ struct NavigationView: View {
 }
 
 #Preview {
-    NavigationView()
+    Navigation2View()
 }

@@ -1,15 +1,32 @@
 //
-//  ContentView.swift
-//  education-accessibility-dyslexia
+//  NavigationView.swift
+//  DyslexiaAccessibilityApp
 //
-//  Created by Wonsang Lee on 11/22/25.
+//  Created by Wonsang Lee on 11/18/25.
 //
 
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        Navigation2View()
+    @State private var selection: Tab = .textToSpeech
+    enum Tab{
+        case textToSpeech
+        case speechToText
+    }
+    
+    var body : some View{
+        TabView(selection: $selection){
+            TextToSpeechView()
+                .tabItem{
+                    Label("TextToSpeech", systemImage: "star")
+                }
+                .tag(Tab.textToSpeech)
+            SpeechToTextView()
+                .tabItem{
+                    Label( "SpeechToText", systemImage: "star")
+                }
+                .tag(Tab.speechToText)
+        }
     }
 }
 

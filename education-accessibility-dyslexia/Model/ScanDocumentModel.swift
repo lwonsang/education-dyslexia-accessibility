@@ -31,9 +31,9 @@ struct ScanDocumentModel: UIViewControllerRepresentable {
     
     class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
         var recognizedText: Binding<String>
-        var parent: ScanDocumentView
+        var parent: ScanDocumentModel
         
-        init(recognizedText: Binding<String>, parent: ScanDocumentView){
+        init(recognizedText: Binding<String>, parent: ScanDocumentModel){
             self.recognizedText = recognizedText
             self.parent = parent
         }

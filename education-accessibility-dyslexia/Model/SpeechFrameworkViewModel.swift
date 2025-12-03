@@ -33,7 +33,7 @@ class SpeechFrameworkViewModel: NSObject, ObservableObject {
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         request?.endAudio()
-        recognitionTask?.cancel()
+//        recognitionTask?.cancel()
     }
 
     private func startRecording() {

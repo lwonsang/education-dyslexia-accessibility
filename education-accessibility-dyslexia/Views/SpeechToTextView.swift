@@ -47,9 +47,19 @@ struct SpeechToTextView: View {
                             }
                         }
 
-                        ScrollView{
-                            Text(assemblyai.transcriptText)
-                                .padding()
+//                        ScrollView{
+//                            Text(assemblyai.transcriptText)
+//                                .padding()
+//                        }
+                        
+                        if let fileURL = audioURL {
+                            if !assemblyai.transcriptText.isEmpty {
+                                AudioFileTranscriptView(
+                                    transcript: assemblyai.transcriptText,
+                                    audioURL: fileURL
+                                )
+                                .frame(maxHeight: 350)
+                            }
                         }
                     }
                 .padding()

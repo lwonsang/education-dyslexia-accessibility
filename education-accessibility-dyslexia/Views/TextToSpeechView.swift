@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TextToSpeechView: View {
     @StateObject private var speech = SpeechViewModel()
-    @State private var recognizedText = "This app can help students with dyslexia by reading text aloud."
+    @State private var recognizedText = "Manually input some text or press the Start Scanning button to read your text out loud!"
     @State private var rate = Float(0.45)
     @State private var showingScanningView = false
     @FocusState var focusValue: Int?
@@ -65,6 +65,6 @@ struct TextToSpeechView: View {
         }
     }
 }
-#Preview {
-    TextToSpeechView()
-}
+//#Preview {
+//    TextToSpeechView()
+//}

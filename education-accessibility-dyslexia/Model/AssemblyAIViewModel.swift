@@ -14,12 +14,14 @@ let API_KEY = "eeff8806418c4922868815896fb19c06"
 class AssemblyAIViewModel: ObservableObject {
     @Published var transcriptText: String = ""
     @Published var isLoading = false
+    @Published var sentences: [TranscriptSentence] = []
 
     func transcribeAudio(at fileURL: URL) async {
         do {
             isLoading = true
+            sentences = []
+            transcriptText = ""
 
-            // MUST request access again here
             guard fileURL.startAccessingSecurityScopedResource() else {
                 transcriptText = "Error: Cannot access file"
                 return
@@ -34,9 +36,15 @@ class AssemblyAIViewModel: ObservableObject {
 
             // 3. Poll
             let result = try await pollTranscription(id: id)
+            print("WORD COUNT:", result.words?.count ?? 0)
+            print("BUILT SENTENCES:", sentences.count)
 
             // 4. Update UI
             transcriptText = result.text ?? "(No transcript)"
+            if let words = result.words {
+                self.sentences = buildSentences(from: words)
+            }
+
         } catch {
             transcriptText = "Error: \(error.localizedDescription)"
         }
@@ -72,7 +80,11 @@ func startTranscription(audioURL: String) async throws -> String {
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     let body: [String: Any] = [
-        "audio_url": audioURL
+        "audio_url": audioURL,
+        "punctuate": true,
+        "format_text": true,
+        "speaker_labels": true,
+        "language_detection": true
     ]
 
     request.httpBody = try JSONSerialization.data(withJSONObject: body)
@@ -100,6 +112,7 @@ func pollTranscription(id: String) async throws -> TranscriptionResult {
         let result = try JSONDecoder().decode(TranscriptionResult.self, from: data)
 
         if result.status == "completed" {
+            print(result)
             return result
         } else if result.status == "error" {
             throw NSError(domain: "AssemblyAIError", code: 0, userInfo: [NSLocalizedDescriptionKey: result.error ?? "Unknown error"])
@@ -114,4 +127,59 @@ struct TranscriptionResult: Codable {
     let status: String
     let text: String?
     let error: String?
+    let words: [Word]?
+    
+}
+
+struct TranscriptSentence: Identifiable {
+    let id = UUID()
+    let text: String
+    let start: TimeInterval
+    let end: TimeInterval
+}
+
+func buildSentences(from words: [Word]) -> [TranscriptSentence] {
+    var sentences: [TranscriptSentence] = []
+    var buffer: [Word] = []
+
+    func flush() {
+        guard let first = buffer.first,
+              let last = buffer.last else { return }
+
+        let text = buffer.map { $0.text }.joined(separator: " ")
+
+        sentences.append(
+            TranscriptSentence(
+                text: text,
+                start: TimeInterval(first.start) / 1000,
+                end: TimeInterval(last.end) / 1000
+            )
+        )
+        buffer.removeAll()
+    }
+
+    for word in words {
+        buffer.append(word)
+
+        let endsSentence =
+            word.text.hasSuffix(".") ||
+            word.text.hasSuffix("?") ||
+            word.text.hasSuffix("!")
+
+        let tooLong = buffer.count >= 12   
+
+        if endsSentence || tooLong {
+            flush()
+        }
+    }
+
+    flush()
+    return sentences
+}
+
+
+struct Word: Codable {
+    let text: String
+    let start: Int
+    let end: Int
 }

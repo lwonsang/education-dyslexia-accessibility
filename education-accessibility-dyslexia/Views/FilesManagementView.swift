@@ -13,7 +13,7 @@ struct FilesManagementView: View {
     var onFileImported: (URL) -> Void
     
     var body: some View {
-        Button("Import") {
+        Button("Import Audio File") {
             importing = true
         }
         .fileImporter(

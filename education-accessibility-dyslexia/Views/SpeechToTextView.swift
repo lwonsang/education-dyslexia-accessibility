@@ -36,31 +36,25 @@ struct SpeechToTextView: View {
                 GroupBox("Transcribe Audio File") {
                     VStack {
                         FilesManagementView { file in
+                            guard !assemblyai.isLoading else { return }
                             audioURL = file
-                        }
-
-                        if let fileURL = audioURL {
-                            Button("Transcribe Audio") {
-                                Task {
-                                    await assemblyai.transcribeAudio(at: fileURL)
-                                }
+                            Task {
+                                await assemblyai.transcribeAudio(at: file)
                             }
+                            
                         }
-
-//                        ScrollView{
-//                            Text(assemblyai.transcriptText)
-//                                .padding()
-//                        }
                         
-                        if let fileURL = audioURL {
-                            if !assemblyai.transcriptText.isEmpty {
-                                AudioFileTranscriptView(
-                                    transcript: assemblyai.transcriptText,
-                                    audioURL: fileURL
-                                )
+                        if assemblyai.isLoading {
+                                    ProgressView("Transcribing…")
+                                        .padding()
+                                }
+
+                        
+                        if let fileURL = audioURL, !assemblyai.sentences.isEmpty {
+                            AudioFileTranscriptView(assemblyai: assemblyai, audioURL: fileURL)
                                 .frame(maxHeight: 350)
-                            }
                         }
+                            
                     }
                 .padding()
                 }
@@ -70,6 +64,6 @@ struct SpeechToTextView: View {
     
 }
 
-#Preview {
-    SpeechToTextView()
-}
+//#Preview {
+//    SpeechToTextView()
+//}

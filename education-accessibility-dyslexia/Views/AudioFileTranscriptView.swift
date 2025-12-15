@@ -8,45 +8,79 @@
 import SwiftUI
 
 struct AudioFileTranscriptView: View {
+    @ObservedObject var assemblyai: AssemblyAIViewModel
     @StateObject var audioVM = AudioPlayerModel()
-
-    let transcript: String  // from AssemblyAI or manual
-    let audioURL: URL                  // your imported mp3 file
+    
+    let audioURL: URL
 
     var body: some View {
         VStack(alignment: .leading) {
 
-            // Audio controls
             HStack {
                 Button(audioVM.isPlaying ? "Pause" : "Play") {
                     audioVM.playPause()
                 }
 
-                Slider(value: Binding(
-                    get: { audioVM.currentTime },
-                    set: { audioVM.seek(to: $0) }
-                ), in: 0...audioVM.duration)
+                Slider(
+                    value: Binding(
+                        get: { audioVM.currentTime },
+                        set: { audioVM.seek(to: $0) }
+                    ),
+                    in: 0...audioVM.duration
+                )
             }
             .padding()
 
-            // Transcript with word highlighting
-            ScrollView {
-                Text(transcript)
-                    .font(.title3)
+            if assemblyai.sentences.isEmpty {
+                Text("Transcribing…")
+                    .foregroundColor(.secondary)
                     .padding()
-                    .background(Color(white: 0.95))
-                    .multilineTextAlignment(.leading)
-//                    .overlay(alignment: .topLeading) {
-//                        highlightedTranscriptLayer
-//                    }
+            } else {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 12) {
+                            ForEach(assemblyai.sentences) { sentence in
+                                Text(sentence.text)
+                                    .padding(8)
+                                    .background(
+                                        isCurrent(sentence)
+                                            ? Color.yellow.opacity(0.4)
+                                            : Color.clear
+                                    )
+                                    .cornerRadius(6)
+                                    .id(sentence.id)
+                            }
+                        }
+                        .padding()
+                    }
+                    .onChange(of: audioVM.currentTime) { _ in
+                        scrollToCurrentSentence(proxy)
+                    }
+                }
             }
         }
         .onAppear {
             audioVM.loadAudio(from: audioURL)
         }
     }
-    
+
+    func isCurrent(_ sentence: TranscriptSentence) -> Bool {
+        audioVM.currentTime >= sentence.start &&
+        audioVM.currentTime < sentence.end
+    }
+
+    func scrollToCurrentSentence(_ proxy: ScrollViewProxy) {
+        guard let active = assemblyai.sentences.first(where: {
+            audioVM.currentTime >= $0.start &&
+            audioVM.currentTime < $0.end
+        }) else { return }
+
+        withAnimation(.easeInOut(duration: 0.3)) {
+            proxy.scrollTo(active.id, anchor: .center)
+        }
+    }
 }
+
 //#Preview {
 //    AudioFileTranscriptView()
 //}

@@ -8,7 +8,18 @@
 import Foundation
 internal import Combine
 
-let API_KEY = "eeff8806418c4922868815896fb19c06"
+enum API_KEY {
+    static var value: String {
+        guard let key = Bundle.main.infoDictionary?["ASSEMBLYAI_API_KEY"] as? String,
+              !key.isEmpty
+        else {
+            fatalError("ASSEMBLYAI_API_KEY not set")
+        }
+        return key
+    }
+}
+
+
 
 @MainActor
 class AssemblyAIViewModel: ObservableObject {
@@ -57,7 +68,7 @@ class AssemblyAIViewModel: ObservableObject {
 func uploadFile(url: URL) async throws -> String {
     var request = URLRequest(url: URL(string: "https://api.assemblyai.com/v2/upload")!)
     request.httpMethod = "POST"
-    request.setValue(API_KEY, forHTTPHeaderField: "Authorization")
+    request.setValue(API_KEY.value, forHTTPHeaderField: "Authorization")
 
     let fileData = try Data(contentsOf: url)
 
@@ -76,7 +87,7 @@ func startTranscription(audioURL: String) async throws -> String {
 
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
-    request.setValue(API_KEY, forHTTPHeaderField: "Authorization")
+    request.setValue(API_KEY.value, forHTTPHeaderField: "Authorization")
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     let body: [String: Any] = [
@@ -106,7 +117,7 @@ func pollTranscription(id: String) async throws -> TranscriptionResult {
     while true {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue(API_KEY, forHTTPHeaderField: "Authorization")
+        request.setValue(API_KEY.value, forHTTPHeaderField: "Authorization")
 
         let (data, _) = try await URLSession.shared.data(for: request)
         let result = try JSONDecoder().decode(TranscriptionResult.self, from: data)

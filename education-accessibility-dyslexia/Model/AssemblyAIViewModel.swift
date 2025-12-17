@@ -47,8 +47,6 @@ class AssemblyAIViewModel: ObservableObject {
 
             // 3. Poll
             let result = try await pollTranscription(id: id)
-            print("WORD COUNT:", result.words?.count ?? 0)
-            print("BUILT SENTENCES:", sentences.count)
 
             // 4. Update UI
             transcriptText = result.text ?? "(No transcript)"

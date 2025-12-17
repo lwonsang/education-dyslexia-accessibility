@@ -8,25 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selection: Tab = .textToSpeech
-    enum Tab{
-        case textToSpeech
-        case speechToText
-    }
+    
     
     var body : some View{
-        TabView(selection: $selection){
-            TextToSpeechView()
-                .tabItem{
-                    Label("TextToSpeech", systemImage: "star")
-                }
-                .tag(Tab.textToSpeech)
-            SpeechToTextView()
-                .tabItem{
-                    Label( "SpeechToText", systemImage: "star")
-                }
-                .tag(Tab.speechToText)
-        }
+        LandingPageView()
     }
 }
 

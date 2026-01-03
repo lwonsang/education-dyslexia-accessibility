@@ -4,5 +4,17 @@
 <dict>
 	<key>ASSEMBLYAI_API_KEY</key>
 	<string>$(ASSEMBLYAI_API_KEY)</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>NSExceptionAllowsInsecureHTTPLoads</key>
+			<true/>
+			<key>pixabay.com</key>
+			<dict/>
+		</dict>
+	</dict>
+	<key>PIXABAY_API_KEY</key>
+	<string>$(PIXABAY_API_KEY)</string>
 </dict>
 </plist>

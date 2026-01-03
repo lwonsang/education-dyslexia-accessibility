@@ -11,6 +11,9 @@ struct AudioFileTranscriptView: View {
     @ObservedObject var assemblyai: AssemblyAIViewModel
     @StateObject var audioVM = AudioPlayerModel()
     
+    @State private var selectedWord: String?
+    @State private var showingWordBank = false
+    
     let audioURL: URL
 
     var body: some View {
@@ -40,27 +43,46 @@ struct AudioFileTranscriptView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 12) {
                             ForEach(assemblyai.sentences) { sentence in
-                                Text(sentence.text)
-                                    .padding(8)
-                                    .background(
-                                        isCurrent(sentence)
-                                            ? Color.yellow.opacity(0.4)
-                                            : Color.clear
-                                    )
-                                    .cornerRadius(6)
-                                    .id(sentence.id)
+                                TranscriptSentenceView(
+                                    sentence: sentence,
+                                    isCurrent: isCurrent(sentence)
+                                ) { word in
+                                    selectedWord = word
+                                    showingWordBank = true
+                                }
+                                .id(sentence.id)
                             }
                         }
                         .padding()
                     }
+                    .environment(\.openURL, OpenURLAction { url in
+                        if url.scheme == "wordbank" {
+                            selectedWord = url.host
+                            showingWordBank = true
+                            return .handled
+                        }
+                        return .systemAction
+                    })
                     .onChange(of: audioVM.currentTime) { _ in
                         scrollToCurrentSentence(proxy)
                     }
                 }
+
+
+                
             }
         }
         .onAppear {
             audioVM.loadAudio(from: audioURL)
+        }
+        .overlay(alignment: .bottom) {
+            if let word = selectedWord, showingWordBank {
+                WordBankView(word: word) {
+                    showingWordBank = false
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .padding()
+            }
         }
     }
 
@@ -79,6 +101,8 @@ struct AudioFileTranscriptView: View {
             proxy.scrollTo(active.id, anchor: .center)
         }
     }
+    
+    
 }
 
 //#Preview {

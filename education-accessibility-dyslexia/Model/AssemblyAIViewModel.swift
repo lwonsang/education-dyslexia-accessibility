@@ -192,3 +192,9 @@ struct Word: Codable {
     let start: Int
     let end: Int
 }
+
+struct TranscriptWord: Identifiable {
+    let id: Int
+    let text: String
+}
+

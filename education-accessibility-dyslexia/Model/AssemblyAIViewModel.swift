@@ -7,6 +7,7 @@
 
 import Foundation
 internal import Combine
+import NaturalLanguage
 
 enum API_KEY {
     static var value: String {
@@ -51,7 +52,8 @@ class AssemblyAIViewModel: ObservableObject {
             // 4. Update UI
             transcriptText = result.text ?? "(No transcript)"
             if let words = result.words {
-                self.sentences = buildSentences(from: words)
+                let timedSentenceCreator = TimedSentenceCreator()
+                self.sentences = timedSentenceCreator.createSentences(from: words)
             }
 
         } catch {
@@ -143,47 +145,8 @@ struct TranscriptionResult: Codable {
 struct TranscriptSentence: Identifiable {
     let id = UUID()
     let text: String
-    let start: TimeInterval
-    let end: TimeInterval
-}
-
-func buildSentences(from words: [Word]) -> [TranscriptSentence] {
-    var sentences: [TranscriptSentence] = []
-    var buffer: [Word] = []
-
-    func flush() {
-        guard let first = buffer.first,
-              let last = buffer.last else { return }
-
-        let text = buffer.map { $0.text }.joined(separator: " ")
-
-        sentences.append(
-            TranscriptSentence(
-                text: text,
-                start: TimeInterval(first.start) / 1000,
-                end: TimeInterval(last.end) / 1000
-            )
-        )
-        buffer.removeAll()
-    }
-
-    for word in words {
-        buffer.append(word)
-
-        let endsSentence =
-            word.text.hasSuffix(".") ||
-            word.text.hasSuffix("?") ||
-            word.text.hasSuffix("!")
-
-        let tooLong = buffer.count >= 12   
-
-        if endsSentence || tooLong {
-            flush()
-        }
-    }
-
-    flush()
-    return sentences
+    let start: TimeInterval?
+    let end: TimeInterval?
 }
 
 
@@ -198,3 +161,26 @@ struct TranscriptWord: Identifiable {
     let text: String
 }
 
+//func makeSentences(from text: String) -> [TranscriptSentence] {
+//    let tokenizer = NLTokenizer(unit: .sentence)
+//    tokenizer.string = text
+//
+//    var sentences: [TranscriptSentence] = []
+//
+//    tokenizer.enumerateTokens(in: text.startIndex..<text.endIndex) { range, _ in
+//        let sentenceText = String(text[range]).trimmingCharacters(in: .whitespacesAndNewlines)
+//
+//        if !sentenceText.isEmpty {
+//            sentences.append(
+//                TranscriptSentence(
+//                    text: sentenceText,
+//                    start: nil,
+//                    end: nil
+//                )
+//            )
+//        }
+//        return true
+//    }
+//
+//    return sentences
+//}

@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import UIKit
+internal import UIKit
 internal import Combine
 
 enum PIXABAY_API_KEY {

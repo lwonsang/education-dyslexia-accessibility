@@ -87,14 +87,14 @@ struct AudioFileTranscriptView: View {
     }
 
     func isCurrent(_ sentence: TranscriptSentence) -> Bool {
-        audioVM.currentTime >= sentence.start &&
-        audioVM.currentTime < sentence.end
+        audioVM.currentTime >= sentence.start! &&
+        audioVM.currentTime < sentence.end!
     }
 
     func scrollToCurrentSentence(_ proxy: ScrollViewProxy) {
         guard let active = assemblyai.sentences.first(where: {
-            audioVM.currentTime >= $0.start &&
-            audioVM.currentTime < $0.end
+            audioVM.currentTime >= $0.start! &&
+            audioVM.currentTime < $0.end!
         }) else { return }
 
         withAnimation(.easeInOut(duration: 0.3)) {

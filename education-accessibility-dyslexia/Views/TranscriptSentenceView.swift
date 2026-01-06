@@ -37,7 +37,7 @@ extension TranscriptSentenceView {
                 attributed[range].foregroundColor = .black
 //                attributed[range].underlineStyle = .single
 
-                // Encode the word as a "link"
+
                 attributed[range].link = URL(string: "wordbank://\(cleaned.lowercased())")
             }
         }

@@ -35,7 +35,7 @@ struct SpeechToTextView: View {
                 // MARK: File-Based Transcription (AssemblyAI)
                 GroupBox("Transcribe Audio File") {
                     VStack {
-                        FilesManagementView { file in
+                        FilesManagementView(mode: .audio) { file in
                             guard !assemblyai.isLoading else { return }
                             audioURL = file
                             Task {

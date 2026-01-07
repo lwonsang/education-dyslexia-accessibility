@@ -45,11 +45,17 @@ struct AudioFileTranscriptView: View {
                             ForEach(assemblyai.sentences) { sentence in
                                 TranscriptSentenceView(
                                     sentence: sentence,
-                                    isCurrent: isCurrent(sentence)
-                                ) { word in
-                                    selectedWord = word
-                                    showingWordBank = true
-                                }
+                                    isCurrent: isCurrent(sentence),
+                                    onSentenceTap: {
+                                        if let start = sentence.start {
+                                            audioVM.play(from: start)
+                                        }
+                                    },
+                                    onWordTap: { word in
+                                        selectedWord = word
+                                        showingWordBank = true
+                                    }
+                                )
                                 .id(sentence.id)
                             }
                         }

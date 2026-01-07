@@ -55,6 +55,26 @@ final class TextToSpeechViewModel: NSObject, ObservableObject, AVSpeechSynthesiz
         }
     }
     
+    func speak(from index: Int, rate: Float) {
+        guard index < sentences.count else { return }
+
+        synthesizer.stopSpeaking(at: .immediate)
+        isSpeaking = true
+
+        for i in index..<sentences.count {
+            let sentence = sentences[i]
+
+            let utterance = AVSpeechUtterance(string: sentence.text)
+            utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+            utterance.rate = rate
+            utterance.volume = 1.0
+            utterance.accessibilityHint = "\(i)"
+
+            synthesizer.speak(utterance)
+        }
+    }
+
+    
     func pause() {
         synthesizer.pauseSpeaking(at: .word)
         isSpeaking = false

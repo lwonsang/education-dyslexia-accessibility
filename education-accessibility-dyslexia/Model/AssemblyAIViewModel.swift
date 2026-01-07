@@ -160,27 +160,3 @@ struct TranscriptWord: Identifiable {
     let id: Int
     let text: String
 }
-
-//func makeSentences(from text: String) -> [TranscriptSentence] {
-//    let tokenizer = NLTokenizer(unit: .sentence)
-//    tokenizer.string = text
-//
-//    var sentences: [TranscriptSentence] = []
-//
-//    tokenizer.enumerateTokens(in: text.startIndex..<text.endIndex) { range, _ in
-//        let sentenceText = String(text[range]).trimmingCharacters(in: .whitespacesAndNewlines)
-//
-//        if !sentenceText.isEmpty {
-//            sentences.append(
-//                TranscriptSentence(
-//                    text: sentenceText,
-//                    start: nil,
-//                    end: nil
-//                )
-//            )
-//        }
-//        return true
-//    }
-//
-//    return sentences
-//}

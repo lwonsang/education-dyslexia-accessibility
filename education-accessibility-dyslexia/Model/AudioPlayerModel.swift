@@ -50,6 +50,14 @@ class AudioPlayerModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
             isPlaying = true
         }
     }
+    
+    func play(from time: TimeInterval) {
+        guard let player = player else { return }
+
+        player.currentTime = time
+        player.play()
+        isPlaying = true
+    }
 
     func seek(to time: TimeInterval) {
         player?.currentTime = time

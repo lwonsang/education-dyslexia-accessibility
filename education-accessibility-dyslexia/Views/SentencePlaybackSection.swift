@@ -10,29 +10,40 @@ import SwiftUI
 struct SentencePlaybackSection: View {
     let sentences: [TranscriptSentence]
     let currentSentenceIndex: Int?
+    let onSentenceTap: (Int) -> Void
     let onWordTap: (String) -> Void
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    ForEach(sentences.indices, id: \.self) { index in
+                    ForEach(Array(sentences.enumerated()), id: \.element.id) { index, sentence in
                         TranscriptSentenceView(
-                            sentence: sentences[index],
+                            sentence: sentence,
                             isCurrent: index == currentSentenceIndex,
+                            onSentenceTap: {
+                                onSentenceTap(index)
+                            },
                             onWordTap: onWordTap
                         )
-                        .id(index)
+                        .id(sentence.id)
                     }
                 }
                 .padding()
             }
             .onChange(of: currentSentenceIndex) { index in
-                guard let index else { return }
-                withAnimation {
-                    proxy.scrollTo(index, anchor: .center)
+                guard
+                    let index,
+                    sentences.indices.contains(index)
+                else { return }
+
+                let id = sentences[index].id
+
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    proxy.scrollTo(id, anchor: .center)
                 }
             }
+
         }
     }
 }

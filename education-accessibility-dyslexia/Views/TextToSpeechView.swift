@@ -25,6 +25,7 @@ struct TextToSpeechView: View {
     @FocusState var focusValue: Int?
     
     let buttonHeight: CGFloat = 50
+    let rate: Float = 0.45
     
     var body: some View {
         VStack(spacing: 16) {
@@ -39,15 +40,15 @@ struct TextToSpeechView: View {
                 SentencePlaybackSection(
                     sentences: speech.sentences,
                     currentSentenceIndex: speech.currentSentenceIndex,
+                    onSentenceTap: { index in
+                        speech.speak(from: index, rate: rate)
+                    },
                     onWordTap: { word in
                         selectedWord = word
                         showingWordBank = true
                     }
                 )
-                
-                
             }
-            
             HStack(spacing: 20){
                 Button(action: {
                     self.showingScanningView = true

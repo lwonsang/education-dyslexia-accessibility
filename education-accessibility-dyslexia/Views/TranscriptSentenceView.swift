@@ -10,6 +10,7 @@ import SwiftUI
 struct TranscriptSentenceView: View {
     let sentence: TranscriptSentence
     let isCurrent: Bool
+    let onSentenceTap: () -> Void
     let onWordTap: (String) -> Void
 
     var body: some View {
@@ -17,6 +18,10 @@ struct TranscriptSentenceView: View {
                 .background(isCurrent ? Color.yellow.opacity(0.3) : .clear)
                 .padding(8)
                 .cornerRadius(6)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    onSentenceTap()
+                }
     }
     
 

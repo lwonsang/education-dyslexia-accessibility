@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct education_accessibility_dyslexiaApp: App {
+    @StateObject private var studyNotesStore = StudyNotesStore()
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(studyNotesStore)
         }
     }
 }

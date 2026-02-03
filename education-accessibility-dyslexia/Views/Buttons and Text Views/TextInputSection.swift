@@ -10,6 +10,7 @@
 import SwiftUI
 
 struct TextInputSection: View {
+    @EnvironmentObject var settings: AppSettings
     @Binding var text: String
     @Binding var selectedRange: NSRange
     let onImportFile: (URL) -> Void
@@ -23,13 +24,18 @@ struct TextInputSection: View {
             VStack {
                 CustomTextView(
                     text: $text,
-                    selectedRange: $selectedRange
+                    selectedRange: $selectedRange,
+                    fontSize: settings.fontSize,
+                    lineSpacing: settings.lineSpacing,
+                    letterSpacing: settings.letterSpacing
                 )
-                .frame(height: 150)
+                .background(.gray.opacity(0.1))
+                .frame(height: 500)
 
                 FilesManagementView(mode: .text) { url in
                     onImportFile(url)
                 }
+                .padding()
             }
             .padding()
         }

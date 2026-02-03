@@ -30,6 +30,7 @@ class AudioPlayerModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
         do {
             player = try AVAudioPlayer(contentsOf: url)
             player?.delegate = self
+            player?.enableRate = true
             player?.prepareToPlay()
 
             duration = player?.duration ?? 0
@@ -41,29 +42,39 @@ class AudioPlayerModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
         }
     }
 
-    func playPause() {
+    func playPause(rate: Float) {
         guard let player = player else { return }
 
         if player.isPlaying {
             player.pause()
             isPlaying = false
         } else {
+            player.rate = rate
             player.play()
+            print("Playback rate from playPause:", rate)
             isPlaying = true
         }
     }
     
-    func play(from time: TimeInterval) {
+    func play(from time: TimeInterval, rate: Float) {
         guard let player = player else { return }
 
         player.currentTime = time
         player.play()
+        player.rate = rate
+        print("Playback rate from play:", rate)
         isPlaying = true
     }
 
     func seek(to time: TimeInterval) {
         player?.currentTime = time
         currentTime = time
+    }
+    
+    func stop() {
+        player?.stop()
+        player?.currentTime = 0
+        isPlaying = false
     }
 
     private func startTimer() {

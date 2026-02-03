@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var settings: AppSettings
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
@@ -53,6 +54,7 @@ struct ContentView: View {
                 Spacer()
             }
             .padding()
+            .background(settings.backgroundStyle.color)
         }
     }
 }

@@ -78,7 +78,12 @@ struct CustomTextView: UIViewRepresentable {
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {
-            parent.selectedRange = textView.selectedRange
+            let newRange = textView.selectedRange
+            if parent.selectedRange != newRange {
+                DispatchQueue.main.async {
+                    self.parent.selectedRange = newRange
+                }
+            }
         }
     }
 }

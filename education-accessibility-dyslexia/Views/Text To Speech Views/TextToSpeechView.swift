@@ -17,6 +17,7 @@ internal import UIKit
 struct TextToSpeechView: View {
     @StateObject private var speech = TextToSpeechViewModel()
     @EnvironmentObject var studynotes: StudyNotesStore
+    @EnvironmentObject var settings: AppSettings
 
     @State private var recognizedText = "Manually input some text or press the Start Scanning button to read your text out loud!"
     @State private var selectedRange = NSRange(location: 0, length: 0)
@@ -26,6 +27,7 @@ struct TextToSpeechView: View {
     @State private var showingWordBank = false
     @State private var showingScanningView = false
     @State private var showingHelp = false
+    @State private var showingSettings = false
 
     var isAlreadySaved: Bool {
         studynotes.containsText(recognizedText)
@@ -34,7 +36,6 @@ struct TextToSpeechView: View {
     @FocusState var focusValue: Int?
     
     let buttonHeight: CGFloat = 50
-    let rate: Float = 0.45
     
     var body: some View {
         VStack(spacing: 16) {
@@ -49,7 +50,7 @@ struct TextToSpeechView: View {
                     sentences: speech.sentences,
                     currentSentenceIndex: speech.currentSentenceIndex,
                     onSentenceTap: { index in
-                        speech.speak(from: index, rate: rate)
+                        speech.speak(from: index, rate: settings.speechRate * 0.45)
                     },
                     onWordTap: { word in
                         selectedWord = word
@@ -82,8 +83,10 @@ struct TextToSpeechView: View {
                 .font(.title2)
                 .disabled(recognizedText.isEmpty)
             }
+            Spacer()
         }
-        .background(.gray.opacity(0.1))
+        .background(settings.backgroundStyle.color)
+        .ignoresSafeArea(edges: .bottom)
         .navigationBarTitle("Text To Speech Reader")
         .sheet(isPresented: $showingScanningView){
             ScanDocumentModel(recognizedText: self.$recognizedText)
@@ -121,6 +124,19 @@ struct TextToSpeechView: View {
                     Image(systemName: "questionmark.circle")
                 }
             }
+
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showingSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+            }
+        }
+        .sheet(isPresented: $showingSettings) {
+            NavigationStack{
+                SettingsView()
+            }
         }
         .sheet(isPresented: $showingHelp) {
             HelpTutorialView(
@@ -133,7 +149,7 @@ struct TextToSpeechView: View {
     func startSpeaking() {
         isEditing = false
         speech.loadText(recognizedText)
-        speech.speak(rate: 0.45)
+        speech.speak(rate: settings.speechRate * 0.45)
     }
 
     func pauseSpeaking() {

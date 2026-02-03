@@ -11,19 +11,27 @@ import SwiftUI
 
 struct AudioFileTranscriptView: View {
     @ObservedObject var assemblyai: AssemblyAIViewModel
-    @StateObject var audioVM = AudioPlayerModel()
+    @EnvironmentObject var settings: AppSettings
+    @StateObject private var audioVM = AudioPlayerModel()
     
     @State private var selectedWord: String?
     @State private var showingWordBank = false
     
     let audioURL: URL
+    
+    init(assemblyai: AssemblyAIViewModel, audioURL: URL) {
+        self.assemblyai = assemblyai
+        self.audioURL = audioURL
+        _audioVM = StateObject(wrappedValue: AudioPlayerModel())
+    }
+
 
     var body: some View {
         VStack(alignment: .leading) {
 
             HStack {
                 Button(audioVM.isPlaying ? "Pause" : "Play") {
-                    audioVM.playPause()
+                    audioVM.playPause(rate: settings.speechRate)
                 }
 
                 Slider(
@@ -50,7 +58,7 @@ struct AudioFileTranscriptView: View {
                                     isCurrent: isCurrent(sentence),
                                     onSentenceTap: {
                                         if let start = sentence.start {
-                                            audioVM.play(from: start)
+                                            audioVM.play(from: start, rate: settings.speechRate)
                                         }
                                     },
                                     onWordTap: { word in
@@ -82,6 +90,9 @@ struct AudioFileTranscriptView: View {
         }
         .onAppear {
             audioVM.loadAudio(from: audioURL)
+        }
+        .onDisappear(){
+            audioVM.stop()
         }
         .overlay(alignment: .bottom) {
             if let word = selectedWord, showingWordBank {

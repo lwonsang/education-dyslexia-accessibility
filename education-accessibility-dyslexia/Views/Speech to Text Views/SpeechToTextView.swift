@@ -11,94 +11,38 @@ import SwiftUI
 internal import UniformTypeIdentifiers
 
 struct SpeechToTextView: View {
-    @StateObject private var assemblyai = AssemblyAIViewModel()
-    @StateObject private var speechframework = SpeechFrameworkViewModel()
-    
-    @State private var audioURL: URL?
-    @State private var showingFileImporter = false
-    @State private var canSaveTranscript = false
-    @State private var showSavedToast = false
+    @EnvironmentObject var settings: AppSettings
     @State private var showingHelp = false
+    @State private var showingSettings = false
 
-    @EnvironmentObject var studyNotesStore: StudyNotesStore
-    
     var body: some View {
-            VStack(spacing: 30) {
-                // MARK: Live Microphone Transcription
-                GroupBox("Live Speech to Text (Mic)") {
-                    VStack {
-                        Text(speechframework.transcript)
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        HStack {
-                            Button("Start Mic") {
-                                speechframework.start()
-                            }
-
-                            Button("Stop") {
-                                speechframework.stop()
-                                canSaveTranscript = true
-                            }
-                        }
-
-                        if canSaveTranscript && !speechframework.transcript.isEmpty {
-                            let micSentences = TextSentenceCreator()
-                                .createSentences(from: speechframework.transcript)
-
-                            saveSTTButton(
-                                sourceType: .liveMic,
-                                originalText: speechframework.transcript,
-                                sentences: micSentences,
-                                audioURL: nil
-                            )
-                        }
-
-                    }
+        NavigationStack {
+            List {
+                NavigationLink("Live Microphone Transcription") {
+                    LiveMicSTTView()
                 }
 
-
-                // MARK: File-Based Transcription (AssemblyAI)
-                GroupBox("Transcribe Audio File") {
-                    VStack {
-                        FilesManagementView(mode: .audio) { file in
-                            guard !assemblyai.isLoading else { return }
-                            audioURL = file
-                            Task {
-                                await assemblyai.transcribeAudio(at: file)
-                            }
-                            
-                        }
-                        
-                        if assemblyai.isLoading {
-                                    ProgressView("Transcribing…")
-                                        .padding()
-                                }
-
-                        
-                        if let fileURL = audioURL, !assemblyai.sentences.isEmpty {
-                            AudioFileTranscriptView(assemblyai: assemblyai, audioURL: fileURL)
-                                .frame(maxHeight: 350)
-                            
-                            saveSTTButton(
-                                    sourceType: .audioFile,
-                                    originalText: assemblyai.transcriptText,
-                                    sentences: assemblyai.sentences,
-                                    audioURL: fileURL
-                                )
-                        }
-                            
-                    }
-                .padding()
+                NavigationLink("Transcribe Audio File") {
+                    AudioFileSTTView()
                 }
             }
-            .modifier(SaveToastModifier(isShowing: $showSavedToast))
+            .scrollContentBackground(.hidden)
+            .background(settings.backgroundStyle.color)
+            .navigationTitle("Speech to Text")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showingHelp = true
                     } label: {
                         Image(systemName: "questionmark.circle")
+                    }
+                }
+
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
                     }
                 }
             }
@@ -108,54 +52,11 @@ struct SpeechToTextView: View {
                     sections: sttHelpSections
                 )
             }
-            .navigationBarTitle("Speech To Text Reader")
+            .sheet(isPresented: $showingSettings) {
+                NavigationStack {
+                    SettingsView()
+                }
+            }
         }
-    
-    @ViewBuilder
-    func saveSTTButton(
-        sourceType: SourceType,
-        originalText: String,
-        sentences: [TranscriptSentence],
-        audioURL: URL?
-    ) -> some View {
-        let alreadySaved = studyNotesStore.containsText(originalText)
-
-        Button(alreadySaved ? "Saved ✓" : "Save to Study Notes") {
-            saveSTTNote(
-                sourceType: sourceType,
-                originalText: originalText,
-                sentences: sentences,
-                audioURL: audioURL
-            )
-        }
-        .disabled(alreadySaved)
-        .opacity(alreadySaved ? 0.6 : 1)
-    }
-    
-    func saveSTTNote(
-        sourceType: SourceType,
-        originalText: String,
-        sentences: [TranscriptSentence],
-        audioURL: URL?
-    ) {
-        let title = generateTitle(from: originalText)
-
-        let note = StudyNote(
-            id: UUID(),
-            title: title,
-            sourceType: sourceType,
-            originalText: originalText,
-            sentences: sentences,
-            audioURL: audioURL,
-            lastPlaybackPosition: 0,
-            createdAt: Date()
-        )
-
-        studyNotesStore.add(note)
-        showSaveConfirmation($showSavedToast)
     }
 }
-
-//#Preview {
-//    SpeechToTextView()
-//}

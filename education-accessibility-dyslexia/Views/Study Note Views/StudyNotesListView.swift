@@ -11,31 +11,36 @@ import SwiftUI
 
 struct StudyNotesListView: View {
     @EnvironmentObject var store: StudyNotesStore
+    @EnvironmentObject var settings: AppSettings
 
     var body: some View {
-        NavigationView {
-            if store.notes.isEmpty {
-                emptyState
-            } else {
-                List {
-                    ForEach(store.notes) { note in
-                        NavigationLink {
-                            StudyNoteDetailView(note: note)
-                        } label: {
-                            StudyNoteRowView(note: note)
+        NavigationStack {
+            Group {
+                if store.notes.isEmpty {
+                    emptyState
+                } else {
+                    List {
+                        ForEach(store.notes) { note in
+                            NavigationLink {
+                                StudyNoteDetailView(note: note)
+                            } label: {
+                                StudyNoteRowView(note: note)
+                            }
+                        }
+                        .onDelete { indexSet in
+                            indexSet
+                                .map { store.notes[$0] }
+                                .forEach(store.delete)
                         }
                     }
-                    .onDelete { indexSet in
-                        indexSet
-                            .map { store.notes[$0] }
-                            .forEach(store.delete)
-                    }
+                    .scrollContentBackground(.hidden)
                 }
             }
-        }
-        .navigationTitle("Study Notes")
-        .toolbar{
-            EditButton()
+            .background(settings.backgroundStyle.color)
+            .navigationTitle("Study Notes")
+            .toolbar {
+                EditButton()
+            }
         }
     }
     

@@ -12,6 +12,7 @@ import SwiftUI
 struct StudyNoteDetailView: View {
     let note: StudyNote
     @EnvironmentObject var store: StudyNotesStore
+    @EnvironmentObject var settings: AppSettings
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -30,6 +31,8 @@ struct StudyNoteDetailView: View {
             }
             .padding()
         }
+        .scrollContentBackground(.hidden)
+        .background(settings.backgroundStyle.color)
         .navigationTitle(note.title!)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

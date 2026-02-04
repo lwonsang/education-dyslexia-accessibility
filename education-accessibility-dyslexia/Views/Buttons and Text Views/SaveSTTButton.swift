@@ -30,14 +30,15 @@ struct SaveSTTButton: View {
 
     private func saveSTTNote() {
         let title = generateTitle(from: originalText)
+        let persistedURL = audioURL.flatMap { persistAudioFile($0) }
 
         let note = StudyNote(
             id: UUID(),
             title: title,
-            sourceType: sourceType,
+            sourceType: .audioFile,
             originalText: originalText,
             sentences: sentences,
-            audioURL: audioURL,
+            audioURL: persistedURL,
             lastPlaybackPosition: 0,
             createdAt: Date()
         )
@@ -45,4 +46,25 @@ struct SaveSTTButton: View {
         studyNotesStore.add(note)
         showSaveConfirmation($showSavedToast)
     }
+    
+    func persistAudioFile(_ sourceURL: URL) -> URL? {
+        let didStart = sourceURL.startAccessingSecurityScopedResource()
+        defer { if didStart { sourceURL.stopAccessingSecurityScopedResource() } }
+
+        let destination = FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(sourceURL.pathExtension)
+
+        do {
+            let data = try Data(contentsOf: sourceURL)
+            try data.write(to: destination, options: .atomic)
+
+            return destination
+        } catch {
+            print("❌ Failed to persist audio:", error)
+            return nil
+        }
+    }
+
 }

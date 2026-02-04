@@ -8,7 +8,6 @@
 //  This is the Study Notes Detail view. StudyNoteDetailView shows a more detailed view for each saved Study Note.
 
 import SwiftUI
-
 struct StudyNoteDetailView: View {
     let noteID: UUID
 
@@ -30,32 +29,46 @@ struct StudyNoteDetailView: View {
             }
         }
         .background(settings.backgroundStyle.color)
+        .ignoresSafeArea(edges: .bottom)
     }
 
     @ViewBuilder
     private func content(for note: StudyNote) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(note.title ?? "Untitled")
-                    .font(.title2)
-                    .bold()
+        VStack(spacing: 12) {
 
-                ForEach(note.sentences) { sentence in
-                    StudyNoteSentenceView(
-                        sentence: sentence,
-                        onMark: { newMark in
-                            store.updateSentenceMark(
-                                noteID: note.id,
-                                sentenceID: sentence.id,
-                                mark: newMark
-                            )
-                        }
-                    )
-                }
+            // ✅ 1. AUDIO PLAYBACK (only if audio exists)
+            if let audioURL = note.audioURL {
+                StudyNotesPlaybackView(
+                    sentences: note.sentences,
+                    audioURL: audioURL
+                )
+                .frame(maxHeight: 300)
             }
-            .padding()
+
+            // ✅ 2. STUDY / MARKING SECTION (always present)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(note.title ?? "Untitled")
+                        .font(.title2)
+                        .bold()
+
+                    ForEach(note.sentences) { sentence in
+                        StudyNoteSentenceView(
+                            sentence: sentence,
+                            onMark: { newMark in
+                                store.updateSentenceMark(
+                                    noteID: note.id,
+                                    sentenceID: sentence.id,
+                                    mark: newMark
+                                )
+                            }
+                        )
+                    }
+                }
+                .padding()
+            }
+            .scrollContentBackground(.hidden)
         }
-        .scrollContentBackground(.hidden)
         .navigationTitle(note.title ?? "Study Note")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -69,4 +82,3 @@ struct StudyNoteDetailView: View {
         }
     }
 }
-

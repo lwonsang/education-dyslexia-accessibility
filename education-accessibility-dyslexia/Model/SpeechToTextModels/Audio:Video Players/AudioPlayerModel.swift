@@ -20,12 +20,19 @@ class AudioPlayerModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
     private var player: AVAudioPlayer?
     
     func loadAudio(from url: URL) {
-        guard url.startAccessingSecurityScopedResource() else {
-            print("ERROR: Cannot access audio file")
-            return
-        }
+        let needsSecurityAccess = !url.path.contains(
+            FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path
+        )
 
-        defer { url.stopAccessingSecurityScopedResource() }
+        let didStartAccessing = needsSecurityAccess
+            ? url.startAccessingSecurityScopedResource()
+            : false
+
+        defer {
+            if didStartAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
 
         do {
             player = try AVAudioPlayer(contentsOf: url)
@@ -38,9 +45,10 @@ class AudioPlayerModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
             startTimer()
         } catch {
-            print("ERROR loading audio:", error.localizedDescription)
+            print("ERROR loading audio:", error)
         }
     }
+
 
     func playPause(rate: Float) {
         guard let player = player else { return }
@@ -74,6 +82,7 @@ class AudioPlayerModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
     func stop() {
         player?.stop()
         player?.currentTime = 0
+        player = nil
         isPlaying = false
     }
 

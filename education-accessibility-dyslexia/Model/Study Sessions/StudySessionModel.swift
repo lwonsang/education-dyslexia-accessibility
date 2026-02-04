@@ -15,7 +15,7 @@ struct StudyNote: Identifiable, Codable {
     var title: String?
     let sourceType: SourceType
     let originalText: String
-    let sentences: [TranscriptSentence]
+    var sentences: [TranscriptSentence]
     let audioURL: URL?
     var lastPlaybackPosition: TimeInterval
     let createdAt: Date
@@ -96,5 +96,26 @@ final class StudyNotesStore: ObservableObject {
 
     func containsText(_ text: String) -> Bool {
         notes.contains { $0.originalText == text }
+    }
+    
+    func updateSentenceMark(
+        noteID: UUID,
+        sentenceID: UUID,
+        mark: SentenceMark
+    ) {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
+            return
+        }
+
+        var note = notes[noteIndex]
+
+        guard let sentenceIndex = note.sentences.firstIndex(where: { $0.id == sentenceID }) else {
+            return
+        }
+
+        note.sentences[sentenceIndex].mark = mark
+
+        notes[noteIndex] = note
+        save()
     }
 }

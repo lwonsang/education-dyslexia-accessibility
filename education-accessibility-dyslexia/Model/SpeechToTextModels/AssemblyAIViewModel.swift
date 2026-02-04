@@ -134,31 +134,3 @@ func pollTranscription(id: String) async throws -> TranscriptionResult {
         try await Task.sleep(nanoseconds: 1_000_000_000) // wait 1 second before polling again
     }
 }
-
-struct TranscriptionResult: Codable {
-    let id: String
-    let status: String
-    let text: String?
-    let error: String?
-    let words: [Word]?
-    
-}
-
-struct TranscriptSentence: Identifiable, Codable {
-    var id = UUID()
-    let text: String
-    let start: TimeInterval?
-    let end: TimeInterval?
-}
-
-
-struct Word: Codable {
-    let text: String
-    let start: Int
-    let end: Int
-}
-
-struct TranscriptWord: Identifiable {
-    let id: Int
-    let text: String
-}

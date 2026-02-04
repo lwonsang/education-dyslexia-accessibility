@@ -15,14 +15,17 @@ struct StudyNotesListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
+            ZStack {
+                settings.backgroundStyle.color
+                    .ignoresSafeArea()
+
                 if store.notes.isEmpty {
                     emptyState
                 } else {
                     List {
                         ForEach(store.notes) { note in
                             NavigationLink {
-                                StudyNoteDetailView(note: note)
+                                StudyNoteDetailView(noteID: note.id)
                             } label: {
                                 StudyNoteRowView(note: note)
                             }
@@ -36,18 +39,11 @@ struct StudyNotesListView: View {
                     .scrollContentBackground(.hidden)
                 }
             }
-            .background(settings.backgroundStyle.color)
             .navigationTitle("Study Notes")
             .toolbar {
                 EditButton()
             }
         }
-    }
-    
-    private func delete(at offsets: IndexSet) {
-        offsets
-            .map { store.notes[$0] }
-            .forEach(store.delete)
     }
 
     private var emptyState: some View {
@@ -68,7 +64,3 @@ struct StudyNotesListView: View {
     }
 }
 
-
-#Preview {
-    StudyNotesListView()
-}

@@ -10,30 +10,53 @@
 import SwiftUI
 
 struct StudyNoteDetailView: View {
-    let note: StudyNote
+    let noteID: UUID
+
     @EnvironmentObject var store: StudyNotesStore
     @EnvironmentObject var settings: AppSettings
     @Environment(\.dismiss) private var dismiss
 
+    private var note: StudyNote? {
+        store.notes.first { $0.id == noteID }
+    }
+
     var body: some View {
+        Group {
+            if let note {
+                content(for: note)
+            } else {
+                Text("Note not found")
+                    .foregroundColor(.secondary)
+            }
+        }
+        .background(settings.backgroundStyle.color)
+    }
+
+    @ViewBuilder
+    private func content(for note: StudyNote) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(note.title!)
+                Text(note.title ?? "Untitled")
                     .font(.title2)
                     .bold()
 
                 ForEach(note.sentences) { sentence in
-                    Text(sentence.text)
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                    StudyNoteSentenceView(
+                        sentence: sentence,
+                        onMark: { newMark in
+                            store.updateSentenceMark(
+                                noteID: note.id,
+                                sentenceID: sentence.id,
+                                mark: newMark
+                            )
+                        }
+                    )
                 }
             }
             .padding()
         }
         .scrollContentBackground(.hidden)
-        .background(settings.backgroundStyle.color)
-        .navigationTitle(note.title!)
+        .navigationTitle(note.title ?? "Study Note")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(role: .destructive) {
@@ -46,3 +69,4 @@ struct StudyNoteDetailView: View {
         }
     }
 }
+

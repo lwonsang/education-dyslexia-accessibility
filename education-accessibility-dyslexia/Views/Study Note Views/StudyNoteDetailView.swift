@@ -34,7 +34,7 @@ struct StudyNoteDetailView: View {
 
     @ViewBuilder
     private func content(for note: StudyNote) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 1) {
 
             // ✅ 1. AUDIO PLAYBACK (only if audio exists)
             if let audioURL = note.audioURL {
@@ -42,7 +42,7 @@ struct StudyNoteDetailView: View {
                     sentences: note.sentences,
                     audioURL: audioURL
                 )
-                .frame(maxHeight: 300)
+                .frame(maxHeight: 25)
             }
 
             // ✅ 2. STUDY / MARKING SECTION (always present)
@@ -72,11 +72,20 @@ struct StudyNoteDetailView: View {
         .navigationTitle(note.title ?? "Study Note")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(role: .destructive) {
-                    store.delete(note)
-                    dismiss()
+                Menu {
+                    ForEach(store.folders) { folder in
+                        Button(folder.name) {
+                            store.assign(noteID: note.id, to: folder.id)
+                        }
+                    }
+
+                    Divider()
+
+                    Button("No Folder") {
+                        store.assign(noteID: note.id, to: nil)
+                    }
                 } label: {
-                    Label("Delete", systemImage: "trash")
+                    Label("Move", systemImage: "folder")
                 }
             }
         }

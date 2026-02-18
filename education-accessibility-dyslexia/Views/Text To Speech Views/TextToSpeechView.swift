@@ -16,11 +16,12 @@ internal import UIKit
 
 struct TextToSpeechView: View {
     @StateObject private var speech = TextToSpeechViewModel()
-    @EnvironmentObject var studynotes: StudyNotesStore
+    @EnvironmentObject var studyNotesStore: StudyNotesStore
     @EnvironmentObject var settings: AppSettings
 
     @State private var recognizedText = "Manually input some text or press the Start Scanning button to read your text out loud!"
     @State private var selectedRange = NSRange(location: 0, length: 0)
+    @State private var pendingNote: StudyNote?
     @State private var isEditing = true
     @State private var showSavedToast = false
     @State private var selectedWord: String?
@@ -30,7 +31,7 @@ struct TextToSpeechView: View {
     @State private var showingSettings = false
 
     var isAlreadySaved: Bool {
-        studynotes.containsText(recognizedText)
+        studyNotesStore.containsText(recognizedText)
     }
     
     @FocusState var focusValue: Int?
@@ -67,6 +68,15 @@ struct TextToSpeechView: View {
                 } else {
                     Button(isAlreadySaved ? "Saved ✓" : "Save to Study Notes") {
                         saveAsStudyNote()
+                    }
+                    .sheet(item: $pendingNote) { note in
+                        SaveNoteFolderPickerView(
+                            baseNote: note,
+                            onSave: { finalNote in
+                                studyNotesStore.add(finalNote)
+                                showSaveConfirmation($showSavedToast)
+                            }
+                        )
                     }
                     .buttonStyle(.capsuleBlue(height: buttonHeight))
                     .disabled(isAlreadySaved)
@@ -191,7 +201,7 @@ struct TextToSpeechView: View {
     
     func saveAsStudyNote() {
         let title = generateTitle(from: recognizedText)
-        let note = StudyNote(
+        pendingNote = StudyNote(
             id: UUID(),
             title: title,
             sourceType: .pdf,
@@ -199,10 +209,8 @@ struct TextToSpeechView: View {
             sentences: speech.sentences,
             audioURL: nil,
             lastPlaybackPosition: 0,
-            createdAt: Date()
+            createdAt: Date(),
+            folderID: nil
         )
-
-        studynotes.add(note)
-        showSaveConfirmation($showSavedToast)
     }
 }

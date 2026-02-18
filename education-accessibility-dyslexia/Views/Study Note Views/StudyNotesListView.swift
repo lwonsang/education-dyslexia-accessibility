@@ -12,6 +12,8 @@ import SwiftUI
 struct StudyNotesListView: View {
     @EnvironmentObject var store: StudyNotesStore
     @EnvironmentObject var settings: AppSettings
+    
+    @State private var showingNewFolderSheet = false
 
     var body: some View {
         NavigationStack {
@@ -23,17 +25,42 @@ struct StudyNotesListView: View {
                     emptyState
                 } else {
                     List {
-                        ForEach(store.notes) { note in
+                        Section {
                             NavigationLink {
-                                StudyNoteDetailView(noteID: note.id)
+                                NotesListView(notes: store.notes)
                             } label: {
-                                StudyNoteRowView(note: note)
+                                HStack {
+                                    Label("All Notes", systemImage: "tray.full")
+                                    Spacer()
+                                    Text("\(store.notes.count)")
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
-                        .onDelete { indexSet in
-                            indexSet
-                                .map { store.notes[$0] }
-                                .forEach(store.delete)
+
+                        Section("Folders") {
+                            ForEach(store.folders) { folder in
+                                NavigationLink {
+                                    NotesListView(
+                                        notes: store.notes.filter { $0.folderID == folder.id }
+                                    )
+                                } label: {
+                                    HStack {
+                                        Label(folder.name, systemImage: "folder")
+
+                                        Spacer()
+
+                                        Text("\(store.noteCount(in: folder))")
+                                            .foregroundColor(.secondary)
+                                            .font(.subheadline)
+                                    }
+                                }
+                            }
+                            .onDelete { indexSet in
+                                indexSet
+                                    .map { store.folders[$0] }
+                                    .forEach(store.deleteFolder)
+                            }
                         }
                     }
                     .scrollContentBackground(.hidden)
@@ -41,7 +68,16 @@ struct StudyNotesListView: View {
             }
             .navigationTitle("Study Notes")
             .toolbar {
-                EditButton()
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingNewFolderSheet = true
+                    } label: {
+                        Image(systemName: "folder.badge.plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingNewFolderSheet) {
+                NewFolderView()
             }
         }
     }

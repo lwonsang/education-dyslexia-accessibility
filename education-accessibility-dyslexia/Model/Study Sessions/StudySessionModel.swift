@@ -19,6 +19,13 @@ struct StudyNote: Identifiable, Codable {
     let audioURL: URL?
     var lastPlaybackPosition: TimeInterval
     let createdAt: Date
+    var folderID: UUID?
+}
+
+struct StudyFolder: Identifiable, Codable {
+    let id: UUID
+    var name: String
+    let createdAt: Date
 }
 
 enum SourceType: String, Codable {
@@ -46,9 +53,14 @@ enum SourceType: String, Codable {
     }
 }
 
+struct StudyNotesPersistence: Codable {
+    let notes: [StudyNote]
+    let folders: [StudyFolder]
+}
 
 final class StudyNotesStore: ObservableObject {
     @Published private(set) var notes: [StudyNote] = []
+    @Published private(set) var folders: [StudyFolder] = []
 
     private let saveURL: URL = {
         FileManager.default
@@ -75,19 +87,54 @@ final class StudyNotesStore: ObservableObject {
     func delete(_ note: StudyNote) {
         notes.removeAll { $0.id == note.id }
     }
-
-    private func save() {
-        do {
-            let data = try JSONEncoder().encode(notes)
-            try data.write(to: saveURL)
-        } catch {
-            print("Failed to save notes:", error)
-        }
+    
+    func addFolder(_ folder: StudyFolder) {
+        folders.append(folder)
+        save()
     }
 
+    func deleteFolder(_ folder: StudyFolder) {
+        // optional: unassign notes
+        notes = notes.map {
+            var n = $0
+            if n.folderID == folder.id {
+                n.folderID = nil
+            }
+            return n
+        }
+        folders.removeAll { $0.id == folder.id }
+        save()
+    }
+
+    private func save() {
+        let data = StudyNotesPersistence(
+            notes: notes,
+            folders: folders
+        )
+
+        do {
+            let encoded = try JSONEncoder().encode(data)
+            try encoded.write(to: saveURL)
+        } catch {
+            print("Save error:", error)
+        }
+    }
+    
     private func load() {
-        guard let data = try? Data(contentsOf: saveURL) else { return }
-        notes = (try? JSONDecoder().decode([StudyNote].self, from: data)) ?? []
+        do {
+            let data = try Data(contentsOf: saveURL)
+            let decoded = try JSONDecoder().decode(StudyNotesPersistence.self, from: data)
+            notes = decoded.notes
+            folders = decoded.folders
+        } catch {
+            print("Load error:", error)
+        }
+    }
+    
+    func assign(noteID: UUID, to folderID: UUID?) {
+        guard let index = notes.firstIndex(where: { $0.id == noteID }) else { return }
+        notes[index].folderID = folderID
+        save()
     }
     
     func contains(_ note: StudyNote) -> Bool {
@@ -118,4 +165,13 @@ final class StudyNotesStore: ObservableObject {
         notes[noteIndex] = note
         save()
     }
+    
+    var allNotesCount: Int {
+        notes.count
+    }
+
+    func noteCount(in folder: StudyFolder) -> Int {
+        notes.filter { $0.folderID == folder.id }.count
+    }
+
 }

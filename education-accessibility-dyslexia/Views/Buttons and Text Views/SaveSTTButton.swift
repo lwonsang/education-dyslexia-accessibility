@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SaveSTTButton: View {
     @EnvironmentObject var studyNotesStore: StudyNotesStore
+    @State private var pendingNote: StudyNote?
 
     let sourceType: SourceType
     let originalText: String
@@ -22,17 +23,26 @@ struct SaveSTTButton: View {
         let alreadySaved = studyNotesStore.containsText(originalText)
 
         Button(alreadySaved ? "Saved ✓" : "Save to Study Notes") {
-            saveSTTNote()
+            prepareNote()
+        }
+        .sheet(item: $pendingNote) { note in
+            SaveNoteFolderPickerView(
+                baseNote: note,
+                onSave: { finalNote in
+                    studyNotesStore.add(finalNote)
+                    showSaveConfirmation($showSavedToast)
+                }
+            )
         }
         .disabled(alreadySaved)
         .opacity(alreadySaved ? 0.6 : 1)
     }
 
-    private func saveSTTNote() {
+    private func prepareNote() {
         let title = generateTitle(from: originalText)
         let persistedURL = audioURL.flatMap { persistAudioFile($0) }
 
-        let note = StudyNote(
+        pendingNote = StudyNote(
             id: UUID(),
             title: title,
             sourceType: .audioFile,
@@ -40,11 +50,9 @@ struct SaveSTTButton: View {
             sentences: sentences,
             audioURL: persistedURL,
             lastPlaybackPosition: 0,
-            createdAt: Date()
+            createdAt: Date(),
+            folderID: nil
         )
-
-        studyNotesStore.add(note)
-        showSaveConfirmation($showSavedToast)
     }
     
     func persistAudioFile(_ sourceURL: URL) -> URL? {

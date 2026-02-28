@@ -13,4 +13,4 @@ Users can also save their files as a Study Note, allowing them to review their n
 
 
 Demo Video Link, 2/28/26:
-https://drive.google.com/file/d/1WO01CbzIePK0R4sZShJfVjkvpfmq6RUG/view?usp=sharing
+https://drive.google.com/file/d/1lutC-G2NIhDpj3ugUJ_gfSzXo7B5gUws/view?usp=sharing

@@ -30,7 +30,7 @@ struct TextInputSection: View {
                     letterSpacing: settings.letterSpacing
                 )
                 .background(.gray.opacity(0.1))
-                .frame(height: 500)
+                .frame(height: 400)
 
                 FilesManagementView(mode: .text) { url in
                     onImportFile(url)
@@ -38,6 +38,14 @@ struct TextInputSection: View {
                 .padding()
             }
             .padding()
+        }
+        .onTapGesture {
+            UIApplication.shared.sendAction(
+                #selector(UIResponder.resignFirstResponder),
+                to: nil,
+                from: nil,
+                for: nil
+            )
         }
     }
 }

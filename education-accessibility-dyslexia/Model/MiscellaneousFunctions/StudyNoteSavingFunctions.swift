@@ -5,6 +5,8 @@
 //  Created by Wonsang Lee on 1/14/26.
 //
 
+// The function to save a study note.
+
 import Foundation
 import SwiftUI
 

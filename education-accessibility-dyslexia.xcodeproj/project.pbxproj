@@ -282,6 +282,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "education-accessibility-dyslexia/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "The text to speech scanning function requires access to the camera in order to scan text.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "The speech to text mic streaming function requires access to the device's microphone.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "The speech to text function requires access to speech recognition.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -320,6 +321,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "education-accessibility-dyslexia/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "The text to speech scanning function requires access to the camera in order to scan text.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "The speech to text mic streaming function requires access to the device's microphone.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "The speech to text function requires access to speech recognition.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -5,6 +5,8 @@
 //  Created by Wonsang Lee on 1/6/26.
 //
 
+// Cleans up the imported PDF text for readability.
+
 import Foundation
 
 func cleanedTextForSpeech(_ text: String) -> String {

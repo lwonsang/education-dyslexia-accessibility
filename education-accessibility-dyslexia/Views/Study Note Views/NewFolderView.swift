@@ -5,6 +5,8 @@
 //  Created by Wonsang Lee on 2/4/26.
 //
 
+// This view shows all of the new folders that the user has created.
+
 import SwiftUI
 
 struct NewFolderView: View {

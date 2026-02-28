@@ -5,6 +5,8 @@
 //  Created by Wonsang Lee on 1/20/26.
 //
 
+// Marks the background color for the app, this is set by the user in Settings.
+
 import Foundation
 import SwiftUI
 

@@ -5,6 +5,8 @@
 //  Created by Wonsang Lee on 2/3/26.
 //
 
+// This view takes each individual sentence and makes it so that the user can highlight different sentences if so desired.
+
 import SwiftUI
 
 struct StudyNoteSentenceView: View {

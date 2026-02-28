@@ -19,7 +19,7 @@ struct TextToSpeechView: View {
     @EnvironmentObject var studyNotesStore: StudyNotesStore
     @EnvironmentObject var settings: AppSettings
 
-    @State private var recognizedText = "Manually input some text or press the Start Scanning button to read your text out loud!"
+    @State private var recognizedText = "Manually input some text, import a text file, or use your camera and scan text to read your text out loud!"
     @State private var selectedRange = NSRange(location: 0, length: 0)
     @State private var pendingNote: StudyNote?
     @State private var isEditing = true

@@ -52,14 +52,11 @@ struct CustomTextView: UIViewRepresentable {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
 
-        let attributes: [NSAttributedString.Key: Any] = [
+        textView.typingAttributes = [
             .font: UIFont.systemFont(ofSize: fontSize),
             .kern: letterSpacing,
             .paragraphStyle: paragraphStyle
         ]
-
-        textView.typingAttributes = attributes
-        textView.attributedText = NSAttributedString(string: textView.text, attributes: attributes)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -73,17 +70,21 @@ struct CustomTextView: UIViewRepresentable {
             self.parent = parent
         }
 
+        @objc func dismissKeyboard() {
+            UIApplication.shared.sendAction(
+                #selector(UIResponder.resignFirstResponder),
+                to: nil,
+                from: nil,
+                for: nil
+            )
+        }
+
         func textViewDidChange(_ textView: UITextView) {
             parent.text = textView.text
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {
-            let newRange = textView.selectedRange
-            if parent.selectedRange != newRange {
-                DispatchQueue.main.async {
-                    self.parent.selectedRange = newRange
-                }
-            }
+            parent.selectedRange = textView.selectedRange
         }
     }
 }

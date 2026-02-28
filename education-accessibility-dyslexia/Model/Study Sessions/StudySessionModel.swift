@@ -33,6 +33,8 @@ enum SourceType: String, Codable {
     case audioFile
     case pdf
     case typedText
+    case scannedText
+    case text
 
     var displayName: String {
         switch self {
@@ -40,6 +42,8 @@ enum SourceType: String, Codable {
         case .audioFile: return "Audio File"
         case .pdf: return "PDF"
         case .typedText: return "Typed Text"
+        case .scannedText: return "Scanned Text"
+        case .text: return "Text"
         }
     }
 
@@ -49,6 +53,8 @@ enum SourceType: String, Codable {
         case .audioFile: return "waveform"
         case .pdf: return "doc.richtext"
         case .typedText: return "text.cursor"
+        case .scannedText: return "text.cursor"
+        case .text: return "text.cursor"
         }
     }
 }

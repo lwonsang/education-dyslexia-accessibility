@@ -5,6 +5,8 @@
 //  Created by Wonsang Lee on 2/4/26.
 //
 
+// This view provides all of the available study notes for StudyNotesListView to use.
+
 import SwiftUI
 
 struct NotesListView: View {

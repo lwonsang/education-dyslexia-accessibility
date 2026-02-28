@@ -5,6 +5,8 @@
 //  Created by Wonsang Lee on 2/4/26.
 //
 
+// This view allows the user to play different audio files that correspond to certain study notes.
+
 import SwiftUI
 
 struct StudyNotesPlaybackView: View {

@@ -5,6 +5,8 @@
 //  Created by Wonsang Lee on 2/3/26.
 //
 
+// The model used to build a transcript sentence, which is used to separate out the text in STT pipelines for readability.
+
 import Foundation
 
 struct TranscriptionResult: Codable {
